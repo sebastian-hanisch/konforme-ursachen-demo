@@ -48,7 +48,7 @@ class Measurement:
 
 
 def shifted_world(world: W.World, shift: int, seed: int) -> W.World:
-    """Testwelt: 0 unverändert, 1 anderes Vorab (Zipf statt gleichverteilt), 2 mehr Dokumentationsverlust (q 0,6 statt 0,3). Die Wissensbasis des Modells bleibt die der Kalibrierung."""
+    """Testwelt: 0 unverändert, 1 anderes Vorab (Zipf statt gleichverteilt), 2 mehr Dokumentationsverlust (ρ 0,6 statt 0,3). Die Wissensbasis des Modells bleibt die der Kalibrierung."""
     if shift == 1:
         return replace(world, prior=W.vorab(Stream(derive(seed, 23)), world.nd, 1))
     if shift == 2:

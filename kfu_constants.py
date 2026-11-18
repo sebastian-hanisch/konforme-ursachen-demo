@@ -39,7 +39,7 @@ SD_FACTOR = 2.0               # Unterschiede unter dieser Zahl von Standardfehle
 # --- Regler (Stufen = gemessene Zellen) ---------------------------------------------------------------------------------------------------
 TARGET_OPTIONS = (80, 90, 95)        # Ziel-Abdeckung in Prozent (α = 1 − Ziel)
 KB_OPTIONS = (0, 30, 3)              # 0 = Wissensbasis bekannt, sonst Fälle je Krankheit
-SHIFT_OPTIONS = (0, 1, 2)            # 0 keine, 1 Vorab (Zipf statt gleich), 2 Dokumentation (q 0,6 statt 0,3); wirkt nur im Test
+SHIFT_OPTIONS = (0, 1, 2)            # 0 keine, 1 Vorab (Zipf statt gleich), 2 Dokumentation (ρ 0,6 statt 0,3); wirkt nur im Test
 NCAL_OPTIONS = (100, 500, 2000)      # Kalibrierpatienten (vor dem Entfernen von Patienten ohne dokumentiertes Merkmal)
 METHOD_OPTIONS = (0, 1, 2)           # Anzeige: 0 LAC, 1 APS, 2 Mondrian; es werden immer alle drei gerechnet
 FOCUS_OPTIONS = (0, 1, 2, 3)         # Anzeige: 0 alle Patienten, 1 bis 3 die Klassen 1–2, 3–4, 5+ Merkmale

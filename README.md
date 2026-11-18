@@ -3,7 +3,7 @@
 <!-- TODO nach dem Deploy: direkt hierher den Live-Link setzen (Leerzeile davor und danach):
 **[→ Demo live ausprobieren](https://sebastianhanisch-konforme-ursachen-demo.streamlit.app/)** -->
 
-Fall-Demo für die Website „Sebastian Hanisch – Operations Research und Machine Learning“ (Entscheidungsanalyse und Machine Learning). Statt einer Rangliste möglicher **seltener Krankheiten** nennt die Demo eine **Menge**, die die wahre Krankheit mit einer vorgegebenen **Ziel-Abdeckung** enthalten soll (**Split-Konformal**: eine Schwelle aus einer Kalibriermenge von Patienten mit bekannter Krankheit). Sie zeigt, **was dieses Versprechen zusagt, was es hält und wo es bricht**: Drei Verfahren (LAC, APS, Mondrian-LAC) werden auf derselben erfundenen Welt gemessen, mit einer festen Top-5-Liste als Vergleich. **Lehrmodell mit erfundenen Daten, keine medizinische Beratung** und keine Diagnoseempfehlung. Alle Aussagen gelten für diese Welt, diese Einstellungen und die gemessene Regel jedes Verfahrens.
+Konzept-Demo der Linie **Erkennen unter Unsicherheit** auf der Website „Sebastian Hanisch – Operations Research und Machine Learning“ (Bereich Lernen). Statt einer Rangliste möglicher **seltener Krankheiten** nennt die Demo eine **Menge**, die die wahre Krankheit mit einer vorgegebenen **Ziel-Abdeckung** enthalten soll (**Split-Konformal**: eine Schwelle aus einer Kalibriermenge von Patienten mit bekannter Krankheit). Sie zeigt, **was dieses Versprechen zusagt, was es hält und wo es bricht**: Drei Verfahren (LAC, APS, Mondrian-LAC) werden auf derselben erfundenen Welt gemessen, mit einer festen Top-5-Liste als Vergleich. **Lehrmodell mit erfundenen Daten, keine medizinische Beratung** und keine Diagnoseempfehlung. Alle Aussagen gelten für diese Welt, diese Einstellungen und die gemessene Regel jedes Verfahrens.
 
 **Voraussetzung der Garantie:** Das Versprechen ist garantiert **im Mittel über Patienten und über die Ziehung der Kalibriermenge**, wenn Kalibrier- und Testpatienten **austauschbar** sind (gleiche Verteilung). Ohne Austauschbarkeit kann es halten (in dieser Rechenwelt bei verschobenem Vorab) oder brechen (bei verschobener Dokumentation); die Garantie sagt darüber nichts. Es gilt nicht für einen einzelnen Patienten und nicht für jede Gruppe von Patienten. Einheiten: Abdeckung in Prozent der Patienten (gezählt werden Patienten mit mindestens einem dokumentierten Merkmal), Menge in Zahl der genannten Krankheiten (von 200).
 
@@ -23,7 +23,7 @@ Dieser Demo ging eine frühere Rechnung mit dem Zufallsgenerator von NumPy vorau
 | Wissensbasis aus 3 Fällen je Krankheit | 90,7 → 90,8 | 82,5 → 79,2 | 85,7 → 85,8 | 94,4 → 94,8 |
 | Wissensbasis aus 30 Fällen je Krankheit | 90,1 → 90,8 | 22,4 → 23,2 | 82,8 → 83,5 | 95,8 → 96,0 |
 | bekannt, Vorab im Test verschoben (Zipf statt gleichverteilt) | 88,6 → 90,2 | 13,4 → 14,6 | 79,5 → 81,0 | 95,7 → 96,2 |
-| bekannt, Dokumentation im Test verschoben (q 0,6 statt 0,3) | 70,0 → 71,9 | 19,0 → 21,1 | 60,9 → 62,6 | 84,9 → 86,4 |
+| bekannt, Dokumentation im Test verschoben (ρ 0,6 statt 0,3) | 70,0 → 71,9 | 19,0 → 21,1 | 60,9 → 62,6 | 84,9 → 86,4 |
 | 3 Fälle, Dokumentation im Test verschoben | 77,4 → 76,8 | 89,2 → 85,8 | 73,3 → 72,2 | 84,7 → 84,7 |
 
 | Verfahren | Abdeckung gesamt (%) | Menge gesamt | Abdeckung 1–2 / 3–4 / 5+ (%) | Menge 1–2 / 3–4 / 5+ |
@@ -38,13 +38,13 @@ Dieser Demo ging eine frühere Rechnung mit dem Zufallsgenerator von NumPy vorau
 
 ## Modell
 
-**Welt.** 200 Krankheiten und 100 Merkmale mit Zipf-verteilter Beliebtheit (Exponent 0,8); jede Krankheit hat 4 bis 12 Profilmerkmale mit Häufigkeit 0,95, 0,6, 0,3 oder 0,1. Ein vorhandenes Merkmal wird mit Wahrscheinlichkeit 1 − q aufgeschrieben (q = 0,3), dazu kommt eine Hintergrundrate je Merkmal. Die Welt ist dieselbe wie in `phaenotyp-ranking-demo` (kopierte Module, Kopier-Test).
+**Welt.** 200 Krankheiten und 100 Merkmale mit Zipf-verteilter Beliebtheit (Exponent 0,8); jede Krankheit hat 4 bis 12 Profilmerkmale mit Häufigkeit 0,95, 0,6, 0,3 oder 0,1. Ein vorhandenes Merkmal wird mit Wahrscheinlichkeit 1 − ρ aufgeschrieben (Dokumentationsverlust ρ =0,3), dazu kommt eine Hintergrundrate je Merkmal. Die Welt ist dieselbe wie in `phaenotyp-ranking-demo` (kopierte Module, Kopier-Test).
 
 **Patienten und Modell.** Krankheit gleichverteilt, Merkmale unabhängig gegeben die Krankheit. Patienten ohne jedes dokumentierte Merkmal werden entfernt (Kalibrierung wie Test). Das Modell ist Naive Bayes mit den wahren Häufigkeiten oder mit Häufigkeiten aus gezogenen Fällen (Add-½-Glättung: zu jeder Zählung wird 0,5 addiert); sein Posterior ist die Eingabe aller drei Verfahren.
 
 **Konforme Menge.** Aus 500 Kalibrierpatienten (Standard) mit bekannter Krankheit wird für jeden die Nichtkonformität der wahren Krankheit bestimmt; die Schwelle ist das ⌈(n + 1) · Ziel⌉-te kleinste Ergebnis (exakte Ganzzahlrechnung in ganzen Prozent; ist der Rang größer als n, ist die Schwelle unendlich und die Menge enthält alle Krankheiten). Die Menge eines Patienten enthält alle Krankheiten, deren Ergebnis höchstens die Schwelle ist. **Garantie:** sind Kalibrier- und Testpatient austauschbar, liegt die wahre Krankheit des Testpatienten mit Wahrscheinlichkeit mindestens Ziel in der Menge; bei stetigen Ergebnissen ohne Gleichstände höchstens um 1/(n + 1) darüber. Das gilt für jeden Posterior, auch einen schlechten; ein schlechter Posterior macht die Mengen in dieser Welt groß (3 Fälle je Krankheit: 79,2 statt 14,4 Krankheiten).
 
-**Verschiebungen (im Test, nie in der Kalibrierung).** Vorab: im Test gilt ein Zipf-Vorab statt gleichverteilt, das Modell bleibt bei gleichverteilt. Dokumentation: im Test ist q = 0,6 statt 0,3, es fehlen also mehr Merkmale in der Akte. Beides verletzt die Austauschbarkeit.
+**Verschiebungen (im Test, nie in der Kalibrierung).** Vorab: im Test gilt ein Zipf-Vorab statt gleichverteilt, das Modell bleibt bei gleichverteilt. Dokumentation: im Test ist ρ = 0,6 statt 0,3, es fehlen also mehr Merkmale in der Akte. Beides verletzt die Austauschbarkeit.
 
 **Messung.** Je Einstellung 5 Welten (SplitMix64: der ganzzahlige Zufallsstrom ist auf jeder Plattform derselbe; die Kennzahlen darüber können sich im letzten Bit unterscheiden, gemessen wurde unter Windows); Kalibrierpatienten und Testpatienten werden getrennt gezogen. Im Standard bleiben von 500 gezogenen Kalibrierpatienten im Mittel 490,9 und von 3.000 Testpatienten 2.934,9 (Patienten ohne dokumentiertes Merkmal entfallen). Vollständige Formeln: Expander **📐 Mathematische Formulierung** der App. Alle Parameter sind angenommen.
 
@@ -53,7 +53,7 @@ Dieser Demo ging eine frühere Rechnung mit dem Zufallsgenerator von NumPy vorau
 | Verfahren | Nichtkonformität eines Patienten und einer Krankheit | Grenze |
 |---|---|---|
 | **LAC** | 1 − Posterior der Krankheit | bei richtigem Posterior die kleinsten Mengen bei gegebener Abdeckung im Mittel (Messreihe: außer bei der dünnen Wissensbasis); die Abdeckung hängt an der Merkmalsklasse |
-| **APS** (nicht randomisiert) | Masse aller strikt höher gereihten Krankheiten (Gleichstand nach Index) | die Menge ist ein Anfangsstück der Rangliste; ohne Zufallsrundung ist die Abdeckung bei Gleichständen nicht scharf |
+| **APS** (nicht randomisiert) | Masse aller strikt höher gereihten Krankheiten (Gleichstand nach Index) | die Menge ist ein Anfangsstück der Rangliste; ohne Zufallsrundung gilt die obere Schranke der Abdeckung nur ohne Gleichstände (die untere gilt weiter) |
 | **Mondrian-LAC** | wie LAC, mit einer eigenen Schwelle je Klasse (1–2, 3–4, 5 und mehr dokumentierte Merkmale) | Abdeckung je Klasse nur für diese Klassen; keine Aussage über andere Gruppen |
 | **feste Top-k-Liste** | (Vergleich, kein Versprechen) die k wahrscheinlichsten Krankheiten | die Abdeckung ist ein Ergebnis, kein Versprechen |
 
@@ -71,13 +71,13 @@ Alle Zahlen: Messreihe `data/kfu_results.json` (10 Zellen, je zwei Mengen von 5 
 | Wissensbasis aus 3 Fällen je Krankheit | 90,8 ± 0,3 | 79,2 | 85,8 / 90,6 / 94,8 | 90,2 / 81,5 / 67,4 | 44,8 |
 | Wissensbasis aus 30 Fällen je Krankheit | 90,8 ± 0,4 | 23,2 | 83,5 / 91,2 / 96,0 | 39,5 / 22,6 / 11,3 | 72,4 |
 | bekannt, Vorab im Test verschoben (Zipf statt gleichverteilt) | 90,2 ± 0,5 | 14,6 | 81,0 / 91,2 / 96,2 | 25,7 / 13,9 / 6,7 | 76,6 |
-| bekannt, Dokumentation im Test verschoben (q 0,6 statt 0,3) | 71,9 ± 0,9 | 21,1 | 62,6 / 77,0 / 86,4 | 27,9 / 17,2 / 10,7 | 49,8 |
+| bekannt, Dokumentation im Test verschoben (ρ 0,6 statt 0,3) | 71,9 ± 0,9 | 21,1 | 62,6 / 77,0 / 86,4 | 27,9 / 17,2 / 10,7 | 49,8 |
 | 3 Fälle, Dokumentation im Test verschoben | 76,8 ± 0,5 | 85,8 | 72,2 / 79,0 / 84,7 | 91,2 / 83,9 / 74,3 | 23,3 |
 
 - **Das Versprechen hält im Mittel.** In 8 von 8 Zellen ohne verschobene Dokumentation liegt die Gesamtabdeckung von LAC höchstens 2 Punkte unter dem Ziel (APS 8, Mondrian 8); im Standard 90,4 ± 0,4 % bei Ziel 90 %.
 - **Es hält nicht für jede Gruppe.** Bei 1–2 dokumentierten Merkmalen liegt die Abdeckung von LAC in 8 von 8 Zellen unter dem Ziel, in 6 um mehr als 5 Punkte; bei 5 und mehr Merkmalen liegt sie in 8 von 8 Zellen darüber. Im Standard sind es 81,2 % bei 1–2 und 96,6 % bei 5 und mehr Merkmalen (Ziel 90 %): Das Versprechen gleicht sich über die Klassen aus.
 - **Eine dünne Wissensbasis macht die Menge groß, die Abdeckung hält.** Mit Häufigkeiten aus 3 Fällen je Krankheit liegt die Abdeckung bei 90,8 ± 0,3 %, die mittlere Menge bei 79,2 statt 14,4 Krankheiten (das 5,5-fache); die feste Top-5-Liste deckt 44,8 statt 77,1 % ab. Bei 30 Fällen: 90,8 % und 23,2 Krankheiten.
-- **Eine verschobene Dokumentation bricht das Versprechen.** Mit q = 0,6 statt 0,3 im Test sinkt die Abdeckung von LAC auf 71,9 ± 0,9 % (Ziel 90 %); in 2 von 2 Zellen mit verschobener Dokumentation liegt sie um mehr als 10 Punkte unter dem Ziel (APS 2, Mondrian 2). Die Schwelle kommt aus der Kalibrierung und kennt die Verschiebung nicht; die mittlere Menge liegt bei 21,1 statt 14,4 Krankheiten. Mit der dünnen Wissensbasis und verschobener Dokumentation liegt die Abdeckung bei 76,8 %.
+- **Eine verschobene Dokumentation bricht das Versprechen.** Mit ρ = 0,6 statt 0,3 im Test sinkt die Abdeckung von LAC auf 71,9 ± 0,9 % (Ziel 90 %); in 2 von 2 Zellen mit verschobener Dokumentation liegt sie um mehr als 10 Punkte unter dem Ziel (APS 2, Mondrian 2). Die Schwelle kommt aus der Kalibrierung und kennt die Verschiebung nicht; die mittlere Menge liegt bei 21,1 statt 14,4 Krankheiten. Mit der dünnen Wissensbasis und verschobener Dokumentation liegt die Abdeckung bei 76,8 %.
 
 **Gegenmittel** (Ziel 90 %, Wissensbasis bekannt, 500 Kalibrierpatienten):
 
@@ -98,7 +98,7 @@ Alle Zahlen: Messreihe `data/kfu_results.json` (10 Zellen, je zwei Mengen von 5 
 
 - **APS gleicht die Klassen etwa zur Hälfte aus, Mondrian weitgehend.** Die Spannweite der Abdeckung über die drei Klassen (größte minus kleinste Abweichung vom Ziel, Mittel über die 8 Zellen und beide Mengen) beträgt bei LAC 14,9, bei APS 7,9 und bei Mondrian 2,1 Punkte (bei Mondrian in der Zelle mit 100 Kalibrierpatienten 3,6). Bei 1–2 Merkmalen liegt Mondrian in 0 von 8 Zellen in beiden Mengen unter dem Ziel (LAC 8, APS 8); in einzelnen Mengen liegt er in 1 von 16 Fällen darunter (um höchstens 0,1 Punkte). Alle drei Klassen liegen bei Mondrian in 7 von 8 Zellen höchstens 3 Punkte neben dem Ziel (Ausnahme: 100 Kalibrierpatienten).
 - **Mondrian verschiebt die Fehlabdeckung in größere Mengen.** Bei 1–2 Merkmalen ist die Menge von Mondrian in 6 von 8 Zellen mehr als das 1,5-fache der Menge von LAC (in 8 von 8 größer); gesamt ist sie in 7 von 8 Zellen größer (Ausnahme: Wissensbasis aus 3 Fällen); bei 5 und mehr Merkmalen ist sie in 8 von 8 Zellen kleiner. APS hat gesamt in 7 von 8 Zellen eine größere Menge als LAC. **LAC hat die kleinsten Mengen, wenn der Posterior stimmt:** in 7 von 8 Zellen ist die Gesamtmenge von LAC kleiner als die von APS und die von Mondrian (Ausnahme: Wissensbasis aus 3 Fällen, dort mit schlechtem Posterior).
-- **Bei verschobener Dokumentation bricht auch Mondrian** (Abdeckung 76,6 % bei Ziel 90 %): Die Klassen nach Merkmalszahl sichern die Austauschbarkeit nur innerhalb jeder Klasse, und die ist durch die Verschiebung verletzt (Deutung: bei q 0,6 hat ein Patient mit wenigen dokumentierten Merkmalen mehr vorhandene, aber nicht aufgeschriebene Merkmale als bei q 0,3; nicht getrennt gemessen).
+- **Bei verschobener Dokumentation bricht auch Mondrian** (Abdeckung 76,6 % bei Ziel 90 %): Die Klassen nach Merkmalszahl sichern die Austauschbarkeit nur innerhalb jeder Klasse, und die ist durch die Verschiebung verletzt (Deutung: bei ρ 0,6 hat ein Patient mit wenigen dokumentierten Merkmalen mehr vorhandene, aber nicht aufgeschriebene Merkmale als bei ρ 0,3; nicht getrennt gemessen).
 
 **Menge gegen Ziel-Abdeckung** (Wissensbasis bekannt, 500 Kalibrierpatienten):
 
@@ -147,7 +147,7 @@ Alle Zahlen: Messreihe `data/kfu_results.json` (10 Zellen, je zwei Mengen von 5 
 - [`forecast-interval-demo`](https://github.com/sebastian-hanisch/forecast-interval-demo): konforme Kalibrierung an den Fehlern einer Zeitreihen-Prognose (Nennabdeckung im Mittel, je Wochentag, im Zeitverlauf); gleiche Schwelle aus einer Kalibriermenge, dort für ein **Intervall** einer Zahl, hier für eine **Menge von Klassen**.
 - [`entscheidungs-schranke-demo`](https://github.com/sebastian-hanisch/entscheidungs-schranke-demo): eine konforme Schranke auf die Kosten einer gewählten Entscheidung; gleiches Prinzip der Schwelle aus Kalibrierfehlern, dort mit der Entscheidung als Gegenstand.
 - [`kalibrierung-schwelle-demo`](https://github.com/sebastian-hanisch/kalibrierung-schwelle-demo): aus einer Wahrscheinlichkeit eine Entscheidung; dort muss die Wahrscheinlichkeit als Häufigkeit stimmen, hier nicht: auch mit einer Wissensbasis aus 3 Fällen hält die Abdeckung im Mittel (Befunde), nur die Menge wird größer.
-- Nachbar, im Bau: `grobe-merkmale-demo` (gleiche Welt, Merkmale nur als Oberbegriff dokumentiert).
+- [`grobe-merkmale-demo`](https://github.com/sebastian-hanisch/grobe-merkmale-demo): dieselbe Welt, Merkmale nur als Oberbegriff dokumentiert; dort die **Rangliste** mit Oberbegriffen, hier die **Menge** mit Abdeckungsversprechen (gleiche Linie Erkennen unter Unsicherheit).
 
 ## Verifikation (272 Tests)
 
@@ -226,4 +226,4 @@ Gebaut mit Streamlit, Plotly, NumPy und fpdf2 (scipy nur als Gegenprobe im Test)
 
 ---
 
-Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html).
+Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zur Reihe: [Erkennen unter Unsicherheit: Hinweis und Ursache](https://sebastianhanisch.net/konzepte-erkennen-unsicherheit.html).

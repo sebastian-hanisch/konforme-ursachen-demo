@@ -35,13 +35,24 @@ st.markdown(
     """
 Statt einer Rangliste möglicher **seltener Krankheiten** nennt die Demo eine **Menge**: Sie soll die wahre Krankheit mit einer vorher gewählten Wahrscheinlichkeit enthalten, der **Ziel-Abdeckung**.
 Dazu wird eine **Schwelle** an einer **Kalibriermenge** von Patienten mit bekannter Krankheit bestimmt (**Split-Konformal**). Die Demo zeigt, was dieses **Versprechen** wirklich zusagt:
-es ist garantiert **im Mittel über alle Patienten**, wenn Kalibrier- und Testpatienten **austauschbar** sind; es gilt nicht für jeden Patienten und nicht für jede Gruppe.
+es ist garantiert **im Mittel über alle Patienten**, wenn Kalibrier- und Testpatienten **austauschbar** sind; es gilt nicht für jeden Patienten und nicht für jede Gruppe. Wer das zuerst ohne Fachbegriffe verstehen will, öffnet „💬 In einfachen Worten“.
 
 **Lehrmodell mit erfundenen Daten, keine medizinische Beratung.** Alle Aussagen gelten für diese Welt, nicht für echte Krankheiten.
 
 Weiter unten: vier **Kernfragen** und der Expander **🔧 Wie wir das erreichen – vollständiger Methodenvergleich**.
 """
 )
+
+# erklaerseite:einfach:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/konforme-ursachen-erklaert.json, nicht von Hand ändern)
+with st.expander("💬 In einfachen Worten"):
+    st.markdown(
+        """
+Eine Hausmeisterin nimmt zu einer fremden Tür nicht einen Schlüssel mit, sondern einen Bund, in dem der passende bei einem festen Anteil der Türen dabei sein soll. Die Demo tut dasselbe mit erfundenen seltenen Krankheiten: Statt einer Rangliste nennt sie eine Menge möglicher Krankheiten. Der Schwellenwert, ab dem eine Krankheit in die Menge kommt, stammt aus früheren Patienten, bei denen die wahre Krankheit bekannt ist (die **Kalibriermenge**). Das Versprechen ist eine Ziel-**Abdeckung**: ein Anteil der Patienten, in dem die wahre Krankheit in der Menge liegen soll. Es gilt im Mittel, wenn neue und frühere Patienten gleichartig sind. Für einzelne Gruppen gilt es nicht unbedingt, und bei veränderten Bedingungen kann es brechen. Alle Daten sind erfunden; es gibt keine medizinische Beratung.
+
+[Ausführlich und verständlich erklärt, mit Fachteil](https://sebastianhanisch.net/konforme-ursachen-erklaert.html)
+        """
+    )
+# erklaerseite:einfach:end
 
 st.caption("🔗 Die Adresszeile oben spiegelt Ihre aktuelle Konfiguration wider – einfach kopieren, um ein Szenario zu teilen.")
 
@@ -63,7 +74,7 @@ with st.sidebar:
     kb = _stufe("Wissensbasis: Fälle je Krankheit", "kb_select", "bekannt: die wahren Häufigkeiten. Sonst werden die Häufigkeiten aus so vielen gezogenen Fällen je Krankheit geschätzt (Add-½-Glättung).")
     st.markdown("**Verschiebung im Test**")
     shift = _stufe("Was im Test anders ist als in der Kalibrierung", "shift_select",
-                   "keine: Kalibrier- und Testpatienten sind austauschbar. Vorab: im Test gilt ein Zipf-Vorab statt gleichverteilt. Dokumentation: im Test fehlen mehr Merkmale in der Akte (q 0,6 statt 0,3).")
+                   "keine: Kalibrier- und Testpatienten sind austauschbar. Vorab: im Test gilt ein Zipf-Vorab statt gleichverteilt. Dokumentation: im Test fehlen mehr Merkmale in der Akte (ρ 0,6 statt 0,3).")
     st.markdown("**Anzeige**")
     method = _stufe("Verfahren", "method_select", "LAC, APS oder Mondrian-LAC. Es werden immer alle drei gerechnet; der Regler wählt, welches Verfahren Kennzahlen und Beispielpatient zeigen.")
     focus = _stufe("Klasse für Kennzahlen und Beispielpatient", "focus_select", "Klassen nach der Zahl dokumentierter Merkmale. Bei „alle Patienten“ zeigen die Kennzahlen die Klasse 1–2 Merkmale.")
@@ -185,7 +196,7 @@ with st.expander("Wie funktioniert diese Demo?"):
     st.markdown(
         f"""
 **Die Welt.** {C.ND} Krankheiten und {C.NS} Merkmale mit Zipf-verteilter Beliebtheit: beliebte Merkmale kommen in vielen Krankheitsprofilen und im Hintergrund vor (Konstruktion der Welt, ihr Informationsgehalt ist nicht gemessen). Jede Krankheit hat
-{C.K_MIN_FEAT} bis {C.K_MAX_FEAT} Profilmerkmale mit Häufigkeit 0,95, 0,6, 0,3 oder 0,1. Ein vorhandenes Merkmal wird mit Wahrscheinlichkeit 1 − q aufgeschrieben (q = {str(C.Q_BASE).replace('.', ',')}), dazu kommt eine Hintergrundrate je Merkmal.
+{C.K_MIN_FEAT} bis {C.K_MAX_FEAT} Profilmerkmale mit Häufigkeit 0,95, 0,6, 0,3 oder 0,1. Ein vorhandenes Merkmal wird mit Wahrscheinlichkeit 1 − ρ aufgeschrieben (Dokumentationsverlust ρ ={str(C.Q_BASE).replace('.', ',')}), dazu kommt eine Hintergrundrate je Merkmal.
 
 **Patienten.** Krankheit gleichverteilt, Merkmale unabhängig gegeben die Krankheit. Patienten ohne jedes dokumentierte Merkmal werden entfernt (Kalibrierung wie Test). Das Modell ist Naive Bayes mit den wahren Häufigkeiten
 oder mit Häufigkeiten aus gezogenen Fällen (Add-½-Glättung); sein Posterior ist die Grundlage aller drei Verfahren.
@@ -223,6 +234,25 @@ und die gemessene Regel jedes Verfahrens, nicht für die Methodenklasse. **Keine
     )
 
 with st.expander("📐 Mathematische Formulierung"):
+    # erklaerseite:lesehilfe:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/konforme-ursachen-erklaert.json, nicht von Hand ändern)
+    st.markdown(
+        r"""
+**Lesehilfe.** Gegeben: der Posterior $P(d \mid x)$ eines Modells für einen Patienten mit dokumentierten Merkmalen $x$, dazu Kalibrierpatienten $(x_i, d_i)$, $i = 1, \dots, n$. Gesucht: eine Menge $\mathcal{C}(x)$ von Krankheiten.
+
+| Symbol | Bedeutung |
+|---|---|
+| $d$, $x$ | Krankheit, dokumentierte Merkmale |
+| $s(x, d)$ | Nichtkonformität: klein = plausibel |
+| $n$ | Zahl der Kalibrierpatienten |
+| $\hat q$ | Schwelle |
+| $1 - \alpha$ | Ziel-Abdeckung |
+| $\ell$ | $\lfloor (n + 1)\alpha \rfloor$ |
+| $k_x$ | Klasse des Patienten nach der Zahl dokumentierter Merkmale |
+
+[Schritt für Schritt erklärt, mit Herleitung und Literatur](https://sebastianhanisch.net/konforme-ursachen-erklaert.html#fachleute)
+        """
+    )
+    # erklaerseite:lesehilfe:end
     st.markdown(
         r"""
 **Lesehilfe.** Gegeben: der Posterior $P(d \mid x)$ eines Modells für einen Patienten mit dokumentierten Merkmalen $x$, dazu Kalibrierpatienten $(x_i, d_i)$, $i = 1, \dots, n$. Gesucht: eine Menge $\mathcal{C}(x)$ von Krankheiten.
@@ -238,7 +268,7 @@ with st.expander("📐 Mathematische Formulierung"):
 | $k_x$ | Klasse des Patienten nach der Zahl dokumentierter Merkmale |
         """
     )
-    st.markdown("Nichtkonformität (LAC beziehungsweise APS, nicht randomisiert; bei gleichem Posterior ordnet die Rechnung stabil nach Index, die Summe läuft dann über die davor gereihten Krankheiten):")
+    st.markdown("Nichtkonformität (LAC beziehungsweise APS, nicht randomisiert). Die APS-Summe läuft über die Krankheiten mit strikt höherem Posterior; bei gleichem Posterior ordnet die Rechnung stabil nach Index und zählt die nach Index davor gereihten Krankheiten mit, die Formel mit „>“ gilt also ohne Gleichstände wörtlich:")
     st.latex(r"s_{\mathrm{LAC}}(x, d) = 1 - P(d \mid x), \qquad s_{\mathrm{APS}}(x, d) = \sum_{d' :\, P(d' \mid x) > P(d \mid x)} P(d' \mid x)")
     st.markdown("Schwelle und Menge (Rang $\\lceil (n + 1)(1 - \\alpha) \\rceil$ in den sortierten Ergebnissen der wahren Krankheiten der Kalibrierpatienten; ist der Rang größer als $n$, ist die Schwelle unendlich):")
     st.latex(r"\hat q = s_{(\lceil (n + 1)(1 - \alpha) \rceil)}, \qquad \mathcal{C}(x) = \{\, d : s(x, d) \le \hat q \,\}")
@@ -254,5 +284,5 @@ st.markdown("---")
 st.caption(
     "Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – "
     "Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). "
-    "Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html)."
+    "Mehr zur Reihe: [Erkennen unter Unsicherheit: Hinweis und Ursache](https://sebastianhanisch.net/konzepte-erkennen-unsicherheit.html)."
 )
